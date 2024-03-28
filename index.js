@@ -1,5 +1,4 @@
-// expecting time to be a string in the format like '8:15' or '12:30'
-const digitMap = {
+const timeMap = {
   1: 'one',
   2: 'two',
   3: 'three',
@@ -20,19 +19,28 @@ const digitMap = {
 }
 
 const convertNumberToWords = (number) => {
-  if (digitMap[number]) {
-    return digitMap[number]
+  if (timeMap[number]) {
+    return timeMap[number];
   }
-  const onesDigit = digitMap[number % 10];
+  const onesDigit = timeMap[number % 10];
   if (number < 20) {
-    return `${onesDigit}teen`
+    return `${onesDigit}teen`;
   } else {
-    return `twenty ${onesDigit}`
+    return `twenty ${onesDigit}`;
+  }
+}
+
+class TimeComponent {
+  digit
+  word
+
+  constructor(digit) {
+    this.digit = typeof digit === 'string' ? parseInt(digit) : digit
+    this.word = convertNumberToWords(this.digit)
   }
 }
 
 function convertTimeToWords(time) {
-  // TODO: real code goes here!
   if (time === '0:00') {
     return 'midnight';
   } else if (time === '12:00') {
@@ -40,21 +48,16 @@ function convertTimeToWords(time) {
   }
 
   const [hour, minute] = time.split(':');
-  const minuteNum = parseInt(minute);
-  const hourNum = parseInt(hour);
+  const minuteComponent = new TimeComponent(minute);
+  const hourComponent = new TimeComponent(hour);
+  const nextHourComponent = new TimeComponent(parseInt(hour) + 1)
 
-  const hourWord = convertNumberToWords(hourNum);
-  const hourPlusOneWord = convertNumberToWords(hourNum + 1)
-  const minuteWord = convertNumberToWords(minuteNum);
-
-  if (digitMap[minuteNum]) {
-    return `${digitMap[minuteNum]} ${minuteNum > 30 ? hourPlusOneWord: hourWord}`
-  }
-
-  if (minuteNum < 30) {
-    return `${minuteWord} past ${hourWord}`
+  if (timeMap[minuteComponent.digit]) {
+    return `${timeMap[minuteComponent.digit]} ${minuteComponent.digit > 30 ? nextHourComponent.word: hourComponent.word}`;
+  } else if (minuteComponent.digit < 30) {
+    return `${minuteComponent.word} past ${hourComponent.word}`
   } else {
-    return `${convertNumberToWords(60 - minuteNum)} to ${hourPlusOneWord}`
+    return `${convertNumberToWords(60 - minuteComponent.digit)} to ${nextHourComponent.word}`;
   }
 }
 
